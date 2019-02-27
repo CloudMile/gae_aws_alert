@@ -1,0 +1,9 @@
+cron:
+- description: "check log"
+  url: /log
+  schedule: every 5 minutes
+  target: default
+  retry_parameters:
+    job_retry_limit: 3
+    min_backoff_seconds: 5
+    max_doublings: 5

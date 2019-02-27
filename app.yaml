@@ -1,0 +1,22 @@
+runtime: go111
+
+env: standard
+instance_class: F1
+handlers:
+  - url: /queue/.*
+    script: auto
+    login: admin
+
+  - url: '/.*'
+    script: auto
+
+env_variables:
+  CountLimit: 20
+  LogLimit: 30
+  Region: <aws_region> # like "ap-northeast-1"
+  AKID: <aws_access_key_id>
+  SecretKey: <aws_secret_access_key>
+  LogGroupName: <aws_log_group_name>
+  LogStreamName: <aws_log_stream_name>
+  TO: <to@mail> # like a@a.com,b@b.com
+  Subject: <mail_subject>

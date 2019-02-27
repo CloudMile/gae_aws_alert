@@ -1,0 +1,4 @@
+queue:
+- name: get-aws-dms-log
+  rate: 1/s
+  target: default
