@@ -6,6 +6,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/aws/aws-sdk-go/service/cloudwatchlogs"
 	"github.com/cloudmile/gae_alert_aws_dms_log/model"
@@ -46,10 +47,14 @@ func QueueLogHandle(w http.ResponseWriter, r *http.Request) {
 	var awsSession model.AWSSession
 	awsSession.GetSession()
 	svc := cloudwatchlogs.New(awsSession.Session)
+	startTimestamp, endTimestamp := setStartAndEnd()
+
 	getLogEventsInput := cloudwatchlogs.GetLogEventsInput{
 		Limit:         &limit,
 		LogGroupName:  &conLogGroupName,
 		LogStreamName: &conLogStreamName,
+		StartTime:     &startTimestamp,
+		EndTime:       &endTimestamp,
 	}
 	out, _ := svc.GetLogEvents(&getLogEventsInput)
 
@@ -81,4 +86,18 @@ func needCheck(ctx context.Context) (model.Send, bool) {
 func sendMail(ctx context.Context, bodyMessage string) {
 	mail := model.Mail{Ctx: ctx, HTMLBody: bodyMessage}
 	mail.Send()
+}
+
+func makeTimestamp(theTime time.Time) int64 {
+	return theTime.UnixNano() / int64(time.Millisecond)
+}
+
+func setStartAndEnd() (startTimestamp, endTimestamp int64) {
+	logStartFrom, _ := strconv.Atoi(os.Getenv("LogStartFrom"))
+	endTime := time.Now()
+	startTime := endTime.Add(time.Minute * time.Duration(0-logStartFrom))
+
+	endTimestamp = makeTimestamp(endTime)
+	startTimestamp = makeTimestamp(startTime)
+	return
 }
