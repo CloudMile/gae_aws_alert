@@ -23,7 +23,7 @@ func (m *Mail) Send() {
 	ctx := m.Ctx
 	msg := &mail.Message{
 		Sender:   "noreply@" + appengine.AppID(ctx) + ".appspotmail.com",
-		To:       strings.Split(os.Getenv("TO"), ","),
+		Bcc:      strings.Split(os.Getenv("TO"), ","),
 		Subject:  os.Getenv("Subject"),
 		HTMLBody: m.HTMLBody,
 	}
