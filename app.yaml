@@ -12,7 +12,6 @@ handlers:
 
 env_variables:
   CountLimit: 20
-  LogLimit: 30
   LogStartFrom: 5 # The start of the time range, for example, 5 is mean 5 mins ago from now. It decided from your cronjob period.
   Region: <aws_region> # like "ap-northeast-1"
   AKID: <aws_access_key_id>

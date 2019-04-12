@@ -12,6 +12,7 @@ func main() {
 	http.HandleFunc("/queue/log", controller.QueueLogHandle)
 
 	http.HandleFunc("/reset_send", controller.SendHandle)
+	// http.HandleFunc("/init", controller.InitHandle)
 
 	appengine.Main()
 }

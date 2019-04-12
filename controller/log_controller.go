@@ -5,7 +5,6 @@ import (
 	"net/http"
 	"os"
 	"strconv"
-	"strings"
 	"time"
 
 	"github.com/aws/aws-sdk-go/service/cloudwatchlogs"
@@ -37,35 +36,27 @@ func QueueLogHandle(w http.ResponseWriter, r *http.Request) {
 	if !ok {
 		return
 	}
-
-	logLimit, _ := strconv.Atoi(os.Getenv("LogLimit"))
 	conLogGroupName := os.Getenv("LogGroupName")
 	conLogStreamName := os.Getenv("LogStreamName")
-	var limit int64
-	limit = int64(logLimit)
 
 	var awsSession model.AWSSession
 	awsSession.GetSession()
 	svc := cloudwatchlogs.New(awsSession.Session)
 	startTimestamp, endTimestamp := setStartAndEnd()
 
-	getLogEventsInput := cloudwatchlogs.GetLogEventsInput{
-		Limit:         &limit,
-		LogGroupName:  &conLogGroupName,
-		LogStreamName: &conLogStreamName,
-		StartTime:     &startTimestamp,
-		EndTime:       &endTimestamp,
-	}
-	out, _ := svc.GetLogEvents(&getLogEventsInput)
+	var ignoreChars model.IgnoreChars
+	ignoreChars.Get(ctx)
 
-	count := 0
-	var htmlBody string
-	for _, event := range out.Events {
-		if strings.Index(strings.ToLower(*event.Message), "error") >= 0 {
-			htmlBody += *event.Message + "<br/>"
-			count++
-		}
+	awsLog := model.AWSLog{
+		IgnoreChars:      ignoreChars.Chars,
+		Cloudwatchlogs:   svc,
+		ConLogGroupName:  &conLogGroupName,
+		ConLogStreamName: &conLogStreamName,
+		StartTimestamp:   &startTimestamp,
+		EndTimestamp:     &endTimestamp,
 	}
+	htmlBody, count := awsLog.ExecLogs()
+
 	if count > 0 {
 		sendMail(ctx, htmlBody)
 		send.AddAndPut(ctx)
