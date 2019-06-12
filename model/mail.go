@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"google.golang.org/appengine"
+	"google.golang.org/appengine/log"
 	"google.golang.org/appengine/mail"
 )
 
@@ -27,5 +28,8 @@ func (m *Mail) Send() {
 		Subject:  os.Getenv("Subject"),
 		HTMLBody: m.HTMLBody,
 	}
-	mail.Send(ctx, msg)
+	err := mail.Send(ctx, msg)
+	if err != nil {
+		log.Errorf(ctx, "sent mail failed: %s", err.Error())
+	}
 }
