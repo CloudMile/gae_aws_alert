@@ -1,7 +1,7 @@
 cron:
 - description: "check log"
   url: /log
-  schedule: every 5 minutes
+  schedule: every 10 minutes
   target: default
   retry_parameters:
     job_retry_limit: 3
